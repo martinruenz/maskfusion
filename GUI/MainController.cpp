@@ -901,16 +901,11 @@ void MainController::drawScene(DRAW_COLOR_TYPE backgroundColor, DRAW_COLOR_TYPE 
             if (name_texture.second->draw)
                 gui->displayImg(name_texture.first, name_texture.second.get());
 
-        // gui->displayImg("IcpError", eFusion->getTextures()["ICP_ERROR"]);
-        // gui->displayImg("ModelImg", coFusion->getIndexMap().getSplatImageTex());
-        // gui->displayImg("Model", eFusion->getIndexMap().getDrawTex());
-
         auto itBegin = maskFusion->getModels().begin();
         auto itEnd = maskFusion->getModels().end();
         int i = 0;
         for (auto model = itBegin; model != itEnd; model++) {
             gui->displayImg("ICP" + std::to_string(++i), (*model)->getICPErrorTexture());
-            // gui->displayImg("P" + std::to_string(i), (*model)->getUnaryConfTexture());
             if (i >= 4) break;
         }
         for (; i < 4;) {

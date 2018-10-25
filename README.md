@@ -47,17 +47,6 @@ The following CMake options are mandatory: `PYTHON_VE_PATH`, `MASKFUSION_MASK_RC
 * Evaluate segmentation (intersection-over-union): https://github.com/martinruenz/dataset-tools/tree/master/evaluate_segmentation
 * Scripts to create synthetic datasets with blender: https://github.com/martinruenz/dataset-tools/tree/master/blender
 
-### Synthetic sequences:
-* http://visual.cs.ucl.ac.uk/pubs/cofusion/data/car4-noise.klg
-* http://visual.cs.ucl.ac.uk/pubs/cofusion/data/car4-full.tar.gz
-* http://visual.cs.ucl.ac.uk/pubs/cofusion/data/room4-noise.klg
-* http://visual.cs.ucl.ac.uk/pubs/cofusion/data/room4-full.tar.gz
-
-### Real (Asus Xtion) sequences, in [klg](https://github.com/mp3guy/LogView) format:
-* http://visual.cs.ucl.ac.uk/pubs/cofusion/data/teddy-handover.klg
-* http://visual.cs.ucl.ac.uk/pubs/cofusion/data/sliding-clock.klg
-* http://visual.cs.ucl.ac.uk/pubs/cofusion/data/place-items.klg
-
 ## Hardware
 In order to run MaskFusion smoothly, you need a fast GPU with enough memory to store multiple models simultaneously. We used an Nvidia TitanX for most experiments, but also successfully tested MaskFusion on a laptop computer with an Nvidia GeForce™ GTX 960M. If your GPU memory is limited, the `MASKFUSION_NUM_GSURFELS` and `MASKFUSION_NUM_OSURFELS` CMake options can help reduce the memory footprint per model (global/object, respectively).
 While the tracking stage of MaskFusion calls for a fast GPU, the motion based segmentation performance depends on the CPU and accordingly, having a nice processor helps as well.
