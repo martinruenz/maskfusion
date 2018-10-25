@@ -1,0 +1,8 @@
+BasedOnStyle: Google
+ColumnLimit: 140
+SortIncludes: false
+DerivePointerAlignment: false
+PointerAlignment: Left
+AlignTrailingComments: true
+SortIncludes: false
+PenaltyBreakComment: 16000

@@ -1,0 +1,4 @@
+MaskFusion includes the third-party open-source software ElasticFusion, which itself includes third-party open-source software. Each of these components have their own license.
+
+You can find the ElasticFusion license in the file LICENSE-ElasticFusion.txt and
+the MaskFusion license in the file LICENSE-MaskFusion.txt
