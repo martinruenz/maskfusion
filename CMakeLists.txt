@@ -18,7 +18,7 @@ cmake_policy(SET CMP0009 NEW)
 
 project(MaskFusion)
 
-set(CUDA_HOST_COMPILER "/usr/bin/g++-4.9")
+set(CUDA_HOST_COMPILER "/usr/bin/g++-4.9" CACHE STRING "The cuda host compiler")
 set(BUILD_TESTS OFF CACHE BOOL "Build unit tests")
 
 # OpenMP
