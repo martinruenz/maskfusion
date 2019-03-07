@@ -37,6 +37,11 @@ function highlight(){
   clr_magentab clr_bold clr_white "$1"
 }
 
+highlight "Starting MaskFusion build script ..."
+echo "Available parameters:
+        --install-packages
+        --install-cuda
+        --build-dependencies"
 
 if [[ $* == *--install-packages* ]] ; then
   highlight "Installing system packages..."
@@ -46,6 +51,9 @@ if [[ $* == *--install-packages* ]] ; then
   if [[ $DISTRIB_CODENAME == *"trusty"* ]] ; then
     # g++ 4.9.4
     sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+    sudo apt-get install \
+      g++-4.9 \
+      gcc-4.9
     # cmake 3.2.2
     sudo add-apt-repository -y ppa:george-edison55/cmake-3.x
     # openjdk 8
@@ -57,9 +65,9 @@ if [[ $* == *--install-packages* ]] ; then
     build-essential \
     cmake \
     freeglut3-dev \
-    g++-4.9 \
-    gcc-4.9 \
     git \
+    g++ \
+    gcc \
     libeigen3-dev \
     libglew-dev \
     libjpeg-dev \
@@ -69,7 +77,9 @@ if [[ $* == *--install-packages* ]] ; then
     openjdk-8-jdk \
     unzip \
     zlib1g-dev \
-    cython3
+    cython3 \
+    libboost-all-dev \
+    libfreetype6-dev
 
     sudo -H pip3 install virtualenv
 
@@ -128,7 +138,7 @@ pip3 install h5py
 pip3 install cython
 pip3 install imgaug
 pip3 install opencv-python
-ln -s python-environment/lib/python3.5/site-packages/numpy/core/include/numpy Core/Segmentation/MaskRCNN
+ln -s `python -c "import numpy as np; print(np.__path__[0])"`/core/include/numpy Core/Segmentation/MaskRCNN || true # Provide numpy headers to C++
 
 
 
@@ -256,7 +266,7 @@ if [[ $* == *--build-dependencies* ]] ; then
   cmake \
     -DOpenCV_DIR="${OpenCV_DIR}" \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCUDA_HOST_COMPILER=/usr/bin/gcc-4.9 \
+    -DCUDA_HOST_COMPILER=/usr/bin/gcc \
     -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -D_FORCE_INLINES" \
     ..
   make -j8
@@ -293,6 +303,7 @@ cmake \
   -DOpenCV_DIR="$(pwd)/../deps/opencv/build" \
   -DPangolin_DIR="$(pwd)/../deps/Pangolin/build/src" \
   -DMASKFUSION_PYTHON_VE_PATH="$(pwd)/../python-environment" \
+  -DCUDA_HOST_COMPILER=/usr/bin/gcc \
   -DWITH_FREENECT2=OFF \
   ..
 make -j8
