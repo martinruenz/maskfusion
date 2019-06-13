@@ -1,1 +1,1 @@
-include("${CMAKE_CURRENT_LIST_DIR}/maskfusionTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/libmaskfusionTargets.cmake")
