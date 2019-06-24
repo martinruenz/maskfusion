@@ -75,6 +75,7 @@ target_link_libraries(MaskFusion
                       boost_filesystem
                       boost_system
                       pthread
+                      jpeg
 )
 
 add_library(MaskFusionTools SHARED
