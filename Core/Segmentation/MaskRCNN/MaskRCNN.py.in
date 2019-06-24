@@ -65,27 +65,18 @@ current_bounding_boxes = None
 # Root directory of the project
 DATA_DIR = os.path.join(MASK_RCNN_DIR, "data")
 MODEL_DIR = os.path.join(DATA_DIR, "logs")
-COCO_MODEL_PATH = os.path.join(DATA_DIR, "mask_rcnn_coco.h5")
+MODEL_PATH = os.path.join(DATA_DIR, "mask_rcnn_coco.h5")
 
 # PARAMETERS
+# Threshold for score:
 SCORE_T = 0.55
-FILTER_CLASSES = ['teddy bear']
-SPECIAL_ASSIGNMENTS = {} #{'person': 255}
+# This only has an effect if the list contains at least 1 class name:
+FILTER_CLASSES = []  # Example: ['teddy bear']
+SPECIAL_ASSIGNMENTS = {}  # Example: {'person': 255}
 SINGLE_INSTANCES = False
 OUTPUT_FRAMES = True
 STORE_CLASS_IDS = True
 START_INDEX = 0
-
-class InferenceConfig(coco.CocoConfig):
-    # Set batch size to 1 since we'll be running inference on
-    # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
-    GPU_COUNT = 1
-    IMAGES_PER_GPU = 1
-
-config = InferenceConfig()
-config.display()
-model = modellib.MaskRCNN(mode="inference", model_dir=MODEL_DIR, config=config)
-model.load_weights(COCO_MODEL_PATH, by_name=True)
 
 class_names = ['BG', 'person', 'bicycle', 'car', 'motorcycle', 'airplane',
                'bus', 'train', 'truck', 'boat', 'traffic light',
@@ -102,6 +93,18 @@ class_names = ['BG', 'person', 'bicycle', 'car', 'motorcycle', 'airplane',
                'keyboard', 'cell phone', 'microwave', 'oven', 'toaster',
                'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors',
                'teddy bear', 'hair drier', 'toothbrush']
+
+class InferenceConfig(coco.CocoConfig):
+    # Set batch size to 1 since we'll be running inference on
+    # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
+    GPU_COUNT = 1
+    IMAGES_PER_GPU = 1
+    NUM_CLASSES = len(class_names)
+
+config = InferenceConfig()
+config.display()
+model = modellib.MaskRCNN(mode="inference", model_dir=MODEL_DIR, config=config)
+model.load_weights(MODEL_PATH, by_name=True)
 
 FILTER_CLASSES = [class_names.index(x) for x in FILTER_CLASSES]
 SPECIAL_ASSIGNMENTS = {class_names.index(x): SPECIAL_ASSIGNMENTS[x] for x in SPECIAL_ASSIGNMENTS}
