@@ -18,3 +18,13 @@ CMakeLists.txt.user
 
 Core/Segmentation/MaskRCNN/numpy
 __pycache__
+
+deps/Mask_RCNN/
+deps/OpenNI2/
+deps/Pangolin/
+deps/boost/
+deps/coco/
+deps/densecrf/
+deps/freetype-gl-cpp/
+deps/gSLICr/
+deps/opencv/
