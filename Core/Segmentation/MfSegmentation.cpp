@@ -40,7 +40,7 @@ MfSegmentation::MfSegmentation(int w, int h,
                                        std::shared_ptr<GPUTexture> textureDepthMetric,
                                        GlobalProjection* globalProjection,
                                        std::queue<FrameDataPointer>* queue) :
-    minMaskModelOverlap(0.05f), minMappedComponentSize(160), minNewMaskPixels(7000/*2000*/), REUSE_FILTERED_MAPS(true) {
+    minMaskModelOverlap(0.05f), minMappedComponentSize(160), REUSE_FILTERED_MAPS(true) {
 
     floatEdgeMap.create(h, w);
     floatBuffer.create(h, w);
@@ -141,6 +141,8 @@ SegmentationResult MfSegmentation::performSegmentation(std::list<std::shared_ptr
     result.fullSegmentation = cv::Mat::zeros(height, width, CV_8UC1);
     const int nMasks = int(frame->classIDs.size());
     const int nModels = int(models.size());
+    const size_t minNewMaskPixels = minRelSizeNew * total;
+    const size_t maxNewMaskPixels = maxRelSizeNew * total;
 
     // Prepare data (vertex/depth/... maps)
     TICK("segmentation-geom");
@@ -475,7 +477,7 @@ SegmentationResult MfSegmentation::performSegmentation(std::list<std::shared_ptr
                 modelData.isEmpty = false;
                 modelData.pixelCount = maskComponentPixels[midx];
             } else {
-                if(result.hasNewLabel==false && allowNew && maskComponentPixels[midx] > minNewMaskPixels && bestModelIndex==0){
+                if(result.hasNewLabel==false && allowNew && maskComponentPixels[midx] > minNewMaskPixels && maskComponentPixels[midx] < maxNewMaskPixels && bestModelIndex==0){
                     // Create new model for mask
                     maskToID[midx] = nextModelID;
                     result.hasNewLabel = true;

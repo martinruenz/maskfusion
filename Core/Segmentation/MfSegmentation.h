@@ -58,7 +58,6 @@ public:
 
   const float minMaskModelOverlap; // Min overlap to existing models, ratio of mask size
   const int minMappedComponentSize;
-  const int minNewMaskPixels;
 
   int personClassID = 1;
 
