@@ -264,7 +264,8 @@ MainController::MainController(int argc, char* argv[])
         gui->addBifoldParameters();
     }
 
-
+    if(pangolin::FileExists("parameters.cfg"))
+        pangolin::ParseVarsFile("parameters.cfg");
 
     if (Parse::get().arg(argc, argv, "-d", tmpFloat) > -1) gui->depthCutoff->Ref().Set(tmpFloat);
     if (Parse::get().arg(argc, argv, "-i", tmpFloat) > -1) gui->icpWeight->Ref().Set(tmpFloat);
