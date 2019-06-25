@@ -184,9 +184,11 @@ SegmentationResult MfSegmentation::performSegmentation(std::list<std::shared_ptr
         modelData.depthStd = 30;
         result.modelData.push_back(modelData);
         modelIDToIndex[model->getID()] = m;
+        modelIndexToID[m] = model->getID();
     }
     if (allowNew) {
         modelIDToIndex[nextModelID] = models.size();
+        modelIndexToID[models.size()] = nextModelID;
         modelBuffers[models.size()].modelID = nextModelID;
     }
     TOCK("segmentation-DL");
@@ -298,13 +300,11 @@ SegmentationResult MfSegmentation::performSegmentation(std::list<std::shared_ptr
     std::vector<int> maskComponentPixels(nMasks, 0); // Number of pixels per mask
     std::vector<BoundingBox> maskComponentBoxes(nMasks);
     cv::Mat compMaskOverlap(nComponents,nMasks,CV_32SC1, cv::Scalar(0));
-//    cv::Mat compModelOverlap(nComponents,nModels,CV_32SC1, cv::Scalar(0));
     Eigen::MatrixXi compModelOverlap = Eigen::MatrixXi::Zero(nComponents, nModels);
 
     // Compute component-model overlap
     for (size_t i = 0; i < total; ++i)
-        compModelOverlap(cvLabelComps.at<int>(i), projectedIDs.data[i])++;
-//        compModelOverlap.at<int>(cvLabelComps.at<int>(i),projectedIDs.data[i])++;
+        compModelOverlap(cvLabelComps.at<int>(i), modelIDToIndex[projectedIDs.data[i]])++;
 
     if(nMasks){
 
@@ -440,11 +440,9 @@ SegmentationResult MfSegmentation::performSegmentation(std::list<std::shared_ptr
         // Compute overlap with existing models
         for (unsigned char b = 0; b < models.size(); ++b)
             for (int j = 0; j < 256; ++j) modelBuffers[b].maskOverlap[j] = 0; // The compiler will place memset here
-        //std::vector<std::vector<unsigned>> maskOverlap(models.size(), {})
         for (size_t i = 0; i < total; ++i) {
             const unsigned char mask = result.fullSegmentation.data[i];
             for (unsigned char b = 0; b < models.size(); ++b)
-                //if (modelBuffers[b].vertConfMap.at<float>(4*i+3) > 0) modelBuffers[b].maskOverlap[mask]++;
                 if(projectedIDs.data[i]==modelBuffers[b].modelID) modelBuffers[b].maskOverlap[mask]++;
         }
 
@@ -472,7 +470,6 @@ SegmentationResult MfSegmentation::performSegmentation(std::list<std::shared_ptr
             if(bestModelIndex!=0 && bestModelMatchesClass){
                 // Assign mask to existing model
                 maskToID[midx] = modelBuffers[bestModelIndex].modelID;
-                //modelIDToMask[maskToID[midx]] = midx;
                 SegmentationResult::ModelData& modelData = result.modelData[bestModelIndex];
                 modelData.isEmpty = false;
                 modelData.pixelCount = maskComponentPixels[midx];
@@ -502,11 +499,12 @@ SegmentationResult MfSegmentation::performSegmentation(std::list<std::shared_ptr
 
     // Try to map unused components to existing models
     if(true){
-        int model, overlap;
+        int model_index, model_id, overlap;
         for (int c = 1; c < nComponents; ++c) {
             if(mapComponentToMask[c]==0){
-                int overlap = compModelOverlap.row(c).maxCoeff(&model);
-                if(model > 0 && overlap > 0.6f * statsComp.at<int>(c, 4)){
+                int overlap = compModelOverlap.row(c).maxCoeff(&model_index);
+                model_id = modelIndexToID[model_index];
+                if(model_id > 0 && overlap > 0.6f * statsComp.at<int>(c, 4)){
                     int x1 = statsComp.at<int>(c, 0);
                     int x2 = statsComp.at<int>(c, 0)+statsComp.at<int>(c, 2);
                     int y1 = statsComp.at<int>(c, 1);
@@ -514,7 +512,7 @@ SegmentationResult MfSegmentation::performSegmentation(std::list<std::shared_ptr
                     for (int y = y1; y <= y2; ++y) {
                         for (int x = x1; x <= x2; ++x) {
                             if(cvLabelComps.at<int>(y,x)==c) {
-                                result.fullSegmentation.at<unsigned char>(y,x) = model;
+                                result.fullSegmentation.at<unsigned char>(y,x) = model_id;
                             }
                         }
                     }

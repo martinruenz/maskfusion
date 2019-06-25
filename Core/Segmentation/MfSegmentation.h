@@ -104,7 +104,6 @@ public:
   };
   std::vector<ModelBuffers> modelBuffers;
   unsigned char maskToID[256];
-  //unsigned char modelIDToMask[256];
   unsigned char modelIDToIndex[256];
   unsigned char modelIndexToID[256];
   cv::Mat semanticIgnoreMap;

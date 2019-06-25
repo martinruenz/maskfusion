@@ -30,6 +30,8 @@ typedef ModelList::iterator ModelListIterator;
 
 
 struct SegmentationResult {
+
+  // CV_8UC1, stores model-id per pixel
   cv::Mat fullSegmentation;
 
   bool hasNewLabel = false;
