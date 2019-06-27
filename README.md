@@ -110,6 +110,9 @@ One reason for having this exception at start-up can be that OpenGL and Cuda are
 `cv::imshow(...)` requires the library `libopencv_highgui.so`, which might (if GTK is used) depend on `libmirprotobuf.so` and hence on a specific *protobuf* version. The program, however, is also going to require a specific *protobuf* version and it can happen that the two versions are clashing leading to an error message like this: *This program requires version 3.5.0 of the Protocol Buffer runtime library, but the installed version is 2.6.1.  Please update your library.  If you compiled the program yourself, make sure that your headers are from the same version of Protocol Buffers as your link-time library.*
 The easiest fix is to compile OpenCV with `-DWITH_QT=ON`, which removes the *protobuf* dependency of `libopencv_highgui.so`.
 
+### Crash (segfault) when loading python module ***MaskRCNN.py***
+We noticed that loading the python module `MaskRCNN.py` can crash when the executable links to *hdf5* as this is potentially incompatible with the version required by *tensorflow*. Make sure to use the *opencv* library that is built in the deps subdirectory, which does not require linking to *hdf5*. (Set `OpenCV_DIR=<path>/deps/opencv/build` in cmake)
+
 ## License
 MaskFusion includes the third-party open-source software ElasticFusion, which itself includes third-party open-source software. Each of these components have their own license.
 
