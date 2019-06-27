@@ -29,6 +29,7 @@
 #include <boost/algorithm/string.hpp>
 #include <GUI/Tools/PangolinReader.h>
 #include <opencv2/core/ocl.hpp>
+#include <toml.hpp>
 
 /*
  * Parameters:
@@ -264,8 +265,26 @@ MainController::MainController(int argc, char* argv[])
         gui->addBifoldParameters();
     }
 
+    // Load configuration from files
     if(pangolin::FileExists("parameters.cfg"))
         pangolin::ParseVarsFile("parameters.cfg");
+    if(!pangolin::FileExists("config.toml"))
+        throw std::runtime_error("Could not read 'config.toml', which specifies class-names and weights.");
+
+    std::vector<std::string> classNames;
+    std::vector<std::string> trackableClasses;
+    try {
+        toml::table tomlConfig = toml::parse("config.toml");
+        const auto tomlMaskRCNN = toml::get<toml::Table>(tomlConfig.at("MaskRCNN"));
+        classNames = toml::get<std::vector<std::string>>(tomlMaskRCNN.at("class_names"));
+        trackableClasses = toml::get<std::vector<std::string>>(tomlMaskRCNN.at("trackable_classes"));
+
+        for(std::string& c : trackableClasses){
+            trackableClassIds.insert(std::distance(classNames.begin(), std::find(classNames.begin(), classNames.end(), c)));
+        }
+    } catch(...){
+        throw std::invalid_argument("Unable to parse input toml configuration file.");
+    }
 
     if (Parse::get().arg(argc, argv, "-d", tmpFloat) > -1) gui->depthCutoff->Ref().Set(tmpFloat);
     if (Parse::get().arg(argc, argv, "-i", tmpFloat) > -1) gui->icpWeight->Ref().Set(tmpFloat);
@@ -318,23 +337,9 @@ MainController::MainController(int argc, char* argv[])
                                                        "Exporting results to: "
               << exportDir << std::endl;
 
-    //  // Setup rendering for labels
+    // Setup rendering for labels
 #ifdef WITH_FREETYPE_GL_CPP
-    gui->addLabelTexts({"BG", "person", "bicycle", "car", "motorcycle", "airplane",
-                        "bus", "train", "truck", "boat", "traffic light",
-                        "fire hydrant", "stop sign", "parking meter", "bench", "bird",
-                        "cat", "dog", "horse", "sheep", "cow", "elephant", "bear",
-                        "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie",
-                        "suitcase", "frisbee", "skis", "snowboard", "sports ball",
-                        "kite", "baseball bat", "baseball glove", "skateboard",
-                        "surfboard", "tennis racket", "bottle", "wine glass", "cup",
-                        "fork", "knife", "spoon", "bowl", "banana", "apple",
-                        "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza",
-                        "donut", "cake", "chair", "couch", "potted plant", "bed",
-                        "dining table", "toilet", "tv", "laptop", "mouse", "remote",
-                        "keyboard", "cell phone", "microwave", "oven", "toaster",
-                        "sink", "refrigerator", "book", "clock", "vase", "scissors",
-                        "teddy bear", "hair drier", "toothbrush"}, {{0,0,0,1}});
+    gui->addLabelTexts(classNames, {{0,0,0,1}});
 #endif
 }
 
@@ -395,6 +400,7 @@ void MainController::launch() {
                                     !openLoop, iclnuim, reloc, photoThresh, confGlobalInit, confObjectInit, gui->depthCutoff->Get(),
                                     gui->icpWeight->Get(), fastOdom, fernThresh, so3, frameToFrameRGB, gui->modelSpawnOffset->Get(),
                                     Model::MatchingType::Drost, segmentationMethod, exportDir, exportSegmentation, usePrecomputedMasksOnly, frameQueueSize);
+            maskFusion->setTrackableClassIds(trackableClassIds);
 
             gui->addTextureColumn(maskFusion->getDrawableTextures());
 

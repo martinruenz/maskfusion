@@ -243,6 +243,7 @@ class MaskFusion {
   void setMfWeightDistance(float val);
   void setMfWeightConvexity(float val);
   void setMfNonstaticThreshold(float val);
+  void setTrackableClassIds(const std::set<int>& ids);
 
   void setModelSpawnOffset(const unsigned& val);
   void setModelDeactivateCount(const unsigned& val);
@@ -415,7 +416,7 @@ class MaskFusion {
   unsigned modelSpawnOffset;  // setting
   unsigned spawnOffset = 0;   // current value
 
-  const std::vector<int> nonstaticClasses = { 40 };
+  std::set<int> trackableClassIds;
 
   bool exportSegmentation;
   std::string exportDir;

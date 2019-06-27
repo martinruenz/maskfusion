@@ -72,4 +72,6 @@ class MainController {
   Segmentation::Method segmentationMethod;
 
   GPUResize* resizeStream;
+
+  std::set<int> trackableClassIds;
 };

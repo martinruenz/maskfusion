@@ -37,10 +37,12 @@ from mrcnn import visualize
 from PIL import Image
 from helpers import *
 import time
+import pytoml as toml
 import scipy.misc
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", required=True, help="Input directory (all files are being processed)")
+parser.add_argument("-c", required=False, help="Optional config file, otherwise MsCoco is assumed")
 parser.add_argument("-o", required=True, help="Output directory")
 parser.add_argument("--filter", nargs='+', required=False,
                     help="Specify which labels you would like to use (empty means all), example: --filter teddy_bear pizza baseball_bat")
@@ -49,7 +51,7 @@ args = parser.parse_args()
 # FURTHER PARAMETERS
 EXTENSIONS = ['jpg', 'png']
 FILTER_IMAGE_NAME = ""  # only use images, whose name contains this string (eg "Color")
-SCORE_T = 0.85
+score_threshold = 0.85
 SPECIAL_ASSIGNMENTS = {} #{'person': 255}
 SINGLE_INSTANCES = False
 OUTPUT_FRAMES = True
@@ -60,12 +62,13 @@ IMAGE_DIR = args.i
 OUTPUT_DIR = args.o
 DATA_DIR = os.path.join(mask_rcnn_path, "data")
 MODEL_DIR = os.path.join(DATA_DIR, "logs")
-COCO_MODEL_PATH = os.path.join(DATA_DIR, "mask_rcnn_coco.h5")
-FILTER_CLASSES = []
+model_path = os.path.join(DATA_DIR, "mask_rcnn_coco.h5")
+
+filter_classes = []
 if args.filter:
-    FILTER_CLASSES = args.filter
-    FILTER_CLASSES = [f.replace("_", " ") for f in FILTER_CLASSES]
-CLASS_NAMES = ['BG', 'person', 'bicycle', 'car', 'motorcycle', 'airplane',
+    filter_classes = args.filter
+    filter_classes = [f.replace("_", " ") for f in filter_classes]
+class_names = ['BG', 'person', 'bicycle', 'car', 'motorcycle', 'airplane',
                'bus', 'train', 'truck', 'boat', 'traffic light',
                'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird',
                'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear',
@@ -80,14 +83,24 @@ CLASS_NAMES = ['BG', 'person', 'bicycle', 'car', 'motorcycle', 'airplane',
                'keyboard', 'cell phone', 'microwave', 'oven', 'toaster',
                'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors',
                'teddy bear', 'hair drier', 'toothbrush']
-FILTER_CLASSES = [CLASS_NAMES.index(x) for x in FILTER_CLASSES]
-SPECIAL_ASSIGNMENTS = {CLASS_NAMES.index(x): SPECIAL_ASSIGNMENTS[x] for x in SPECIAL_ASSIGNMENTS}
+
+if args.c:
+    with open(args.c, 'rb') as toml_file:
+        toml_config = toml.load(toml_file)
+        class_names = toml_config["MaskRCNN"]["class_names"]
+        model_path = toml_config["MaskRCNN"]["model_path"]
+        filter_classes = toml_config["MaskRCNN"]["filter_classes"]
+        score_threshold = toml_config["MaskRCNN"]["score_threshold"]
+
+filter_classes = [class_names.index(x) for x in filter_classes]
+SPECIAL_ASSIGNMENTS = {class_names.index(x): SPECIAL_ASSIGNMENTS[x] for x in SPECIAL_ASSIGNMENTS}
 
 class InferenceConfig(coco.CocoConfig):
     # Set batch size to 1 since we'll be running inference on
     # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
     GPU_COUNT = 1
     IMAGES_PER_GPU = 1
+    NUM_CLASSES = len(class_names)
 
 config = InferenceConfig()
 config.display()
@@ -96,7 +109,7 @@ config.display()
 model = modellib.MaskRCNN(mode="inference", model_dir=MODEL_DIR, config=config)
 
 # Load weights trained on MS-COCO
-model.load_weights(COCO_MODEL_PATH, by_name=True)
+model.load_weights(model_path, by_name=True)
 
 file_names = [fn for fn in os.listdir(IMAGE_DIR) if any(fn.endswith(ext) for ext in EXTENSIONS)]
 file_names.sort()
@@ -150,17 +163,17 @@ for idx, file_name in enumerate(file_names):
         merge_instances(r)
 
     #out_path = os.path.join(OUTPUT_DIR, "{}.png".format(idx))
-    id_image, exported_class_ids, exported_rois = generate_id_image(r, SCORE_T, FILTER_CLASSES, SPECIAL_ASSIGNMENTS)
+    id_image, exported_class_ids, exported_rois = generate_id_image(r, score_threshold, filter_classes, SPECIAL_ASSIGNMENTS)
     save_id_image(id_image, OUTPUT_DIR, base_name, exported_class_ids, STORE_CLASS_IDS, exported_rois)
 
 
     # Visualise
     ax.clear()
-    filter_result(r, FILTER_CLASSES)
+    filter_result(r, filter_classes)
     #visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
-    #                            CLASS_NAMES, r['scores'], SCORE_T, ax=ax) # requires patched version
+    #                            class_names, r['scores'], score_threshold, ax=ax) # requires patched version
     visualize.display_instances(image, r['rois'], r['masks'], r['class_ids'],
-                                CLASS_NAMES, r['scores'], ax=ax)
+                                class_names, r['scores'], ax=ax)
     fig.canvas.draw()
     if OUTPUT_FRAMES:
         plt.savefig(os.path.join(OUTPUT_DIR, base_name+".jpg"))

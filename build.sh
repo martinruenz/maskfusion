@@ -138,6 +138,7 @@ pip3 install h5py
 pip3 install cython
 pip3 install imgaug
 pip3 install opencv-python
+pip3 install pytoml
 ln -s `python -c "import numpy as np; print(np.__path__[0])"`/core/include/numpy Core/Segmentation/MaskRCNN || true # Provide numpy headers to C++
 
 
@@ -285,6 +286,10 @@ if [[ $* == *--build-dependencies* ]] ; then
   cd data
   wget --no-clobber https://github.com/matterport/Mask_RCNN/releases/download/v1.0/mask_rcnn_coco.h5
   cd ../..
+
+  # c++ toml
+  highlight "Building toml11..."
+  git_clone "git clone --depth=1 https://github.com/ToruNiina/toml11.git"
 
   cd ..
 fi # --build-dependencies

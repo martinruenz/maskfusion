@@ -304,7 +304,6 @@ protected:
     unsigned int id;
     int classID = -1;
 
-    //bool isStatic = true;
     unsigned unseenCount = 0;
     unsigned age = 0;
 

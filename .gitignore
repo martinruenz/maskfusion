@@ -28,3 +28,4 @@ deps/densecrf/
 deps/freetype-gl-cpp/
 deps/gSLICr/
 deps/opencv/
+deps/toml11/

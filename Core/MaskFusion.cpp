@@ -244,7 +244,6 @@ bool MaskFusion::processFrame(FrameDataPointer frame, const Eigen::Matrix4f* inP
             Model::generateCUDATextures(textureDepthMetricFiltered.get(), textureMask.get(), cudaIntrinsics, depthCutoff);
 
             TICK("odom");
-
             ModelListIterator itr = models.begin();
             (*itr)->performTracking(frameToFrameRGB,
                                     rgbOnly, icpWeight,
@@ -259,10 +258,9 @@ bool MaskFusion::processFrame(FrameDataPointer frame, const Eigen::Matrix4f* inP
 
             for(++itr;itr!=models.end();itr++){
                 ModelPointer& mp = (*itr);
-                if(!(*itr)->isNonstatic() && !trackAllModels){
-                    mp->updateStaticPose(globalModel->getPose()); // cam->cam_0=object_0 (cam_0->object_0 = identity)
+                bool trackable = trackableClassIds.empty() || trackableClassIds.count(mp->getClassID());
 
-                } else {
+                if(((*itr)->isNonstatic() || trackAllModels) && trackable){
                     Eigen::Matrix4f t = (*itr)->performTracking(frameToFrameRGB, rgbOnly, icpWeight, pyramid, fastOdom, so3, maxDepthProcessed, textureRGB.get(),
                                                                 frame->timestamp, requiresFillIn(*itr));
 
@@ -270,8 +268,10 @@ bool MaskFusion::processFrame(FrameDataPointer frame, const Eigen::Matrix4f* inP
                     float d = t.topRightCorner(3, 1).norm(); // Hack, do something reasonable
                     if(d > 0.2){
                         std::cout << "Removing model due to movement." << std::endl;
-                        //itr = inactivateModel(itr);
+                        itr = inactivateModel(itr);
                     }
+                } else {
+                    mp->updateStaticPose(globalModel->getPose()); // cam->cam_0=object_0 (cam_0->object_0 = identity)
                 }
             }
 
@@ -937,6 +937,7 @@ void MaskFusion::setMfMorphMaskIterations(int val) { labelGenerator.getMfSegment
 void MaskFusion::setMfThreshold(float val) { labelGenerator.getMfSegmentationPerformer()->threshold = val; }
 void MaskFusion::setMfWeightConvexity(float val) { labelGenerator.getMfSegmentationPerformer()->weightConvexity = val; }
 void MaskFusion::setMfWeightDistance(float val) { labelGenerator.getMfSegmentationPerformer()->weightDistance = val; }
+void MaskFusion::setTrackableClassIds(const std::set<int>& ids) { trackableClassIds = ids; }
 
 void MaskFusion::setFernThresh(const float& val) { fernThresh = val; }
 

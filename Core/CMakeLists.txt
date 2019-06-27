@@ -16,11 +16,6 @@ find_package(OpenCV 3.1 REQUIRED)
 find_package(OpenMP)
 find_package(PythonLibs)
 
-set(MASKFUSION_MASK_RCNN_DIR ${CMAKE_SOURCE_DIR}/deps/Mask_RCNN CACHE STRING "Location of MaskRCNN")
-set(MASKFUSION_PYTHON_VE_PATH "" CACHE STRING "Python virtual environment to use")
-configure_file("Segmentation/MaskRCNN/MaskRCNN.py.in" "${CMAKE_CURRENT_BINARY_DIR}/../GUI/MaskRCNN.py")
-configure_file("Segmentation/MaskRCNN/helpers.py" "${CMAKE_CURRENT_BINARY_DIR}/../GUI/helpers.py")
-
 if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
