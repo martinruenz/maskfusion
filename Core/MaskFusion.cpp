@@ -74,7 +74,7 @@ MaskFusion::MaskFusion(int timeDelta, int countThresh, float errThresh, float co
     createCompute();
     createFeedbackBuffers();
 
-    labelGenerator.init(Resolution::getInstance().width(), Resolution::getInstance().height(), segmentationMethod, cudaIntrinsics, textureRGB, textureDepthMetric, usePrecomputedMasksOnly, &globalProjection, &frameQueue);
+    labelGenerator.init(Resolution::getInstance().width(), Resolution::getInstance().height(), segmentationMethod, cudaIntrinsics, textureRGB, textureDepthMetric, usePrecomputedMasksOnly, &globalProjection, frameQueueSize ? &frameQueue : nullptr);
     auto segTextures = labelGenerator.getDrawableTextures();
     drawableTextures.insert(drawableTextures.end(), segTextures.begin(), segTextures.end());
     globalModel = std::make_shared<Model>(getNextModelID(true), initConfidenceGlobal, true, true, enablePoseLogging);
