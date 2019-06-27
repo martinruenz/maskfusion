@@ -66,12 +66,14 @@ struct ModelInfo {
 
 class GUI {
  public:
-  GUI(bool liveCap, bool showcaseMode) : showcaseMode(showcaseMode) {
-    window_width = 1280;
-    window_height = 980;
-
-    window_width += widthPanel;
-
+  GUI(bool liveCap, bool showcaseMode) :
+    window_width(1280 + widthPanel),
+    window_height(980),
+    showcaseMode(showcaseMode),
+    s_cam(pangolin::OpenGlRenderState(pangolin::ProjectionMatrix(window_width, window_height, 420, 420, window_width / 2.0f, window_height / 2.0f, 0.1, 1000),
+                                      pangolin::ModelViewLookAt(0, 0, -1, 0, 0, 1, pangolin::AxisNegY))),
+    handler(s_cam)
+  {
     pangolin::Params windowParams;
 
     windowParams.Set("SAMPLE_BUFFERS", 0);
@@ -100,11 +102,7 @@ class GUI {
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LESS);
 
-    s_cam = pangolin::OpenGlRenderState(pangolin::ProjectionMatrix(window_width, window_height, 420, 420, window_width / 2.0f, window_height / 2.0f, 0.1, 1000),
-                                        pangolin::ModelViewLookAt(0, 0, -1, 0, 0, 1, pangolin::AxisNegY));
-
-    pangolin::Display("cam").SetBounds(0, 1.0f, 0, 1.0f, -float(window_width) / window_height).SetHandler(new pangolin::Handler3D(s_cam));
-
+    pangolin::Display("cam").SetBounds(0, 1.0f, 0, 1.0f, -float(window_width) / window_height).SetHandler(&handler);
     pangolin::Display("ICP1").SetAspect(texture_aspect_ratio);
     pangolin::Display("ICP2").SetAspect(texture_aspect_ratio);
     pangolin::Display("ICP3").SetAspect(texture_aspect_ratio);
@@ -377,23 +375,9 @@ class GUI {
       bifoldNonstaticThreshold = new pangolin::Var<float>("oi.Nonstatic Thresh", 0.5, 0, 1);
   }
 
-  void deleteBifoldParameters(){
-      delete bifoldBilateralSigmaDepth;
-      delete bifoldBilateralSigmaColor;
-      delete bifoldBilateralSigmaLocation;
-      delete bifoldBilateralRadius;
-      delete bifoldEdgeThreshold;
-      delete bifoldWeightConvexity;
-      delete bifoldWeightDistance;
-      delete bifoldMorphEdgeIterations;
-      delete bifoldMorphEdgeRadius;
-      delete bifoldMorphMaskIterations;
-      delete bifoldMorphMaskRadius;
-      delete bifoldNonstaticThreshold;
-  }
+
 
   void addCRFParameter(){
-      // CRF specific
       crfIterations = new pangolin::Var<unsigned>("oi.CRF iterations", 10, 0, 100);
       pairwiseRGBSTD = new pangolin::Var<float>("oi.CRF RGB std", 10, 0.05, 90);
       pairwiseDepthSTD = new pangolin::Var<float>("oi.CRF depth std", 0.9, 0.05, 5.0);
@@ -405,16 +389,31 @@ class GUI {
       thresholdNew = new pangolin::Var<float>("oi.Thres New", 5.5, 0.0, 80.0);
   }
 
+  void deleteBifoldParameters(){
+      if(bifoldBilateralSigmaDepth) delete bifoldBilateralSigmaDepth;
+      if(bifoldBilateralSigmaColor) delete bifoldBilateralSigmaColor;
+      if(bifoldBilateralSigmaLocation) delete bifoldBilateralSigmaLocation;
+      if(bifoldBilateralRadius) delete bifoldBilateralRadius;
+      if(bifoldEdgeThreshold) delete bifoldEdgeThreshold;
+      if(bifoldWeightConvexity) delete bifoldWeightConvexity;
+      if(bifoldWeightDistance) delete bifoldWeightDistance;
+      if(bifoldMorphEdgeIterations) delete bifoldMorphEdgeIterations;
+      if(bifoldMorphEdgeRadius) delete bifoldMorphEdgeRadius;
+      if(bifoldMorphMaskIterations) delete bifoldMorphMaskIterations;
+      if(bifoldMorphMaskRadius) delete bifoldMorphMaskRadius;
+      if(bifoldNonstaticThreshold) delete bifoldNonstaticThreshold;
+  }
+
   void deleteCRFParameter(){
-      delete pairwiseAppearanceWeight;
-      delete pairwiseSmoothnessWeight;
-      delete pairwiseDepthSTD;
-      delete pairwisePosSTD;
-      delete pairwiseRGBSTD;
-      delete thresholdNew;
-      delete unaryErrorK;
-      delete unaryErrorWeight;
-      delete crfIterations;
+      if(pairwiseAppearanceWeight) delete pairwiseAppearanceWeight;
+      if(pairwiseSmoothnessWeight) delete pairwiseSmoothnessWeight;
+      if(pairwiseDepthSTD) delete pairwiseDepthSTD;
+      if(pairwisePosSTD) delete pairwisePosSTD;
+      if(pairwiseRGBSTD) delete pairwiseRGBSTD;
+      if(thresholdNew) delete thresholdNew;
+      if(unaryErrorK) delete unaryErrorK;
+      if(unaryErrorWeight) delete unaryErrorWeight;
+      if(crfIterations) delete crfIterations;
   }
 
   // Layout parameters
@@ -699,6 +698,7 @@ class GUI {
   }
 #endif
 
+  pangolin::Handler3D handler;
   pangolin::Var<bool> *pause, *step, *skip, *savePoses, *saveView, *saveCloud,
       //* saveDepth,
       *reset, *flipColors, *rgbOnly, *enableMultiModel, *enableSmartDelete, *enableTrackAll, *pyramid, *so3, *frameToFrameRGB, *fastOdom, *followPose,
@@ -712,28 +712,35 @@ class GUI {
   // Model related
   pangolin::Var<int>* numModels;
   std::vector<ModelInfo> modelInfos;
-  pangolin::Var<unsigned> *modelSpawnOffset, *modelDeactivateCnt, *crfIterations;
+  pangolin::Var<unsigned> *modelSpawnOffset, *modelDeactivateCnt;
 
   // Segmentation
   pangolin::Var<float> *minRelSizeNew, *maxRelSizeNew;
 
   // CRF
-  pangolin::Var<float> *pairwiseRGBSTD, *pairwiseDepthSTD, *pairwisePosSTD, *pairwiseAppearanceWeight, *pairwiseSmoothnessWeight,
-      *thresholdNew, *unaryErrorWeight, *unaryErrorK;
+  pangolin::Var<float> *pairwiseRGBSTD = nullptr;
+  pangolin::Var<float> *pairwiseDepthSTD = nullptr;
+  pangolin::Var<float> *pairwisePosSTD = nullptr;
+  pangolin::Var<float> *pairwiseAppearanceWeight = nullptr;
+  pangolin::Var<float> *pairwiseSmoothnessWeight = nullptr;
+  pangolin::Var<float> *thresholdNew = nullptr;
+  pangolin::Var<float> *unaryErrorWeight = nullptr;
+  pangolin::Var<float> *unaryErrorK = nullptr;
+  pangolin::Var<unsigned> *crfIterations = nullptr;
 
   // Bifold
-  pangolin::Var<float> *bifoldBilateralSigmaDepth;
-  pangolin::Var<float> *bifoldBilateralSigmaColor;
-  pangolin::Var<float> *bifoldBilateralSigmaLocation;
-  pangolin::Var<int> *bifoldBilateralRadius;
-  pangolin::Var<float> *bifoldEdgeThreshold;
-  pangolin::Var<float> *bifoldWeightDistance;
-  pangolin::Var<float> *bifoldWeightConvexity;
-  pangolin::Var<float> *bifoldNonstaticThreshold;
-  pangolin::Var<int> *bifoldMorphEdgeIterations;
-  pangolin::Var<int> *bifoldMorphEdgeRadius;
-  pangolin::Var<int> *bifoldMorphMaskIterations;
-  pangolin::Var<int> *bifoldMorphMaskRadius;
+  pangolin::Var<float> *bifoldBilateralSigmaDepth = nullptr;
+  pangolin::Var<float> *bifoldBilateralSigmaColor = nullptr;
+  pangolin::Var<float> *bifoldBilateralSigmaLocation = nullptr;
+  pangolin::Var<int> *bifoldBilateralRadius = nullptr;
+  pangolin::Var<float> *bifoldEdgeThreshold = nullptr;
+  pangolin::Var<float> *bifoldWeightDistance = nullptr;
+  pangolin::Var<float> *bifoldWeightConvexity = nullptr;
+  pangolin::Var<float> *bifoldNonstaticThreshold = nullptr;
+  pangolin::Var<int> *bifoldMorphEdgeIterations = nullptr;
+  pangolin::Var<int> *bifoldMorphEdgeRadius = nullptr;
+  pangolin::Var<int> *bifoldMorphMaskIterations = nullptr;
+  pangolin::Var<int> *bifoldMorphMaskRadius = nullptr;
 
   pangolin::DataLog resLog, inLog;
   pangolin::Plotter *resPlot, *inPlot;

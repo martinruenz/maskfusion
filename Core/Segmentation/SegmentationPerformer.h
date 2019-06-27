@@ -29,6 +29,7 @@ class SegmentationPerformer {
                                               FrameDataPointer frame,
                                               unsigned char nextModelID,
                                               bool allowNew) = 0;
+    virtual ~SegmentationPerformer() = default;
 
     virtual std::vector<std::pair<std::string, std::shared_ptr<GPUTexture>>> getDrawableTextures() { return {}; }
 
