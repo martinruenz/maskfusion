@@ -99,7 +99,7 @@ RGBDOdometry::RGBDOdometry(int width, int height, float cx, float cy, float fx, 
     vmaps_tmp.create(height * 4 * width);
     nmaps_tmp.create(height * 4 * width);
 
-    minimumGradientMagnitudes.reserve(NUM_PYRS);
+    minimumGradientMagnitudes.resize(NUM_PYRS);
     minimumGradientMagnitudes[0] = 5;
     minimumGradientMagnitudes[1] = 3;
     minimumGradientMagnitudes[2] = 1;
