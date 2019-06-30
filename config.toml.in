@@ -26,5 +26,8 @@ model_path = "@MASKFUSION_MODEL_FILE@"
 # If not empty, ignore every class not listed here. Example: ['teddy bear']
 filter_classes = []
 
+# If not empty, only track classes listed here (otherwise apply BG motion)
+trackable_classes = []
+
 # Reject predictions with lower score
 score_threshold = 0.55
