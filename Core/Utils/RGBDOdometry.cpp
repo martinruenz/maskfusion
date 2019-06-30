@@ -77,7 +77,7 @@ RGBDOdometry::RGBDOdometry(int width, int height, float cx, float cy, float fx, 
     intr.fx = fx;
     intr.fy = fy;
 
-    iterations.reserve(NUM_PYRS);
+    iterations.resize(NUM_PYRS);
 
     vmaps_g_prev_.resize(NUM_PYRS);
     nmaps_g_prev_.resize(NUM_PYRS);
