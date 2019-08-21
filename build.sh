@@ -289,7 +289,7 @@ if [[ $* == *--build-dependencies* ]] ; then
 
   # c++ toml
   highlight "Building toml11..."
-  git_clone "git clone --depth=1 https://github.com/ToruNiina/toml11.git"
+  git_clone "git clone --depth=1 --branch v2.4.0 https://github.com/ToruNiina/toml11.git"
 
   cd ..
 fi # --build-dependencies
