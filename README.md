@@ -118,3 +118,6 @@ MaskFusion includes the third-party open-source software ElasticFusion, which it
 
 You can find the ElasticFusion license in the file [LICENSE-ElasticFusion.txt](LICENSE-ElasticFusion.txt) and
 the MaskFusion license in the file [LICENSE-MaskFusion.txt](LICENSE-MaskFusion.txt)
+
+## Acknowledgements
+This work has been supported by the SecondHands project, funded from the EU Horizon 2020 Research and Innovation programme under grant agreement No 643950.
