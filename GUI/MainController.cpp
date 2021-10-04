@@ -286,19 +286,19 @@ MainController::MainController(int argc, char* argv[])
         throw std::invalid_argument("Unable to parse input toml configuration file.");
     }
 
-    if (Parse::get().arg(argc, argv, "-d", tmpFloat) > -1) gui->depthCutoff->Ref().Set(tmpFloat);
-    if (Parse::get().arg(argc, argv, "-i", tmpFloat) > -1) gui->icpWeight->Ref().Set(tmpFloat);
-    if (Parse::get().arg(argc, argv, "-or", tmpFloat) > -1) gui->outlierCoefficient->Ref().Set(tmpFloat);
-    if (Parse::get().arg(argc, argv, "-segMinNew", tmpFloat) > -1) gui->minRelSizeNew->Ref().Set(tmpFloat);
-    if (Parse::get().arg(argc, argv, "-segMaxNew", tmpFloat) > -1) gui->maxRelSizeNew->Ref().Set(tmpFloat);
-    if (Parse::get().arg(argc, argv, "-crfRGB", tmpFloat) > -1) gui->pairwiseRGBSTD->Ref().Set(tmpFloat);
-    if (Parse::get().arg(argc, argv, "-crfDepth", tmpFloat) > -1) gui->pairwiseDepthSTD->Ref().Set(tmpFloat);
-    if (Parse::get().arg(argc, argv, "-crfPos", tmpFloat) > -1) gui->pairwisePosSTD->Ref().Set(tmpFloat);
-    if (Parse::get().arg(argc, argv, "-crfAppearance", tmpFloat) > -1) gui->pairwiseAppearanceWeight->Ref().Set(tmpFloat);
-    if (Parse::get().arg(argc, argv, "-crfSmooth", tmpFloat) > -1) gui->pairwiseSmoothnessWeight->Ref().Set(tmpFloat);
-    if (Parse::get().arg(argc, argv, "-offset", tmpFloat) > -1) gui->modelSpawnOffset->Ref().Set(tmpFloat);
-    if (Parse::get().arg(argc, argv, "-thNew", tmpFloat) > -1) gui->thresholdNew->Ref().Set(tmpFloat);
-    if (Parse::get().arg(argc, argv, "-k", tmpFloat) > -1) gui->unaryErrorK->Ref().Set(tmpFloat);
+    if (Parse::get().arg(argc, argv, "-d", tmpFloat) > -1) gui->depthCutoff->Ref()->Set(tmpFloat);
+    if (Parse::get().arg(argc, argv, "-i", tmpFloat) > -1) gui->icpWeight->Ref()->Set(tmpFloat);
+    if (Parse::get().arg(argc, argv, "-or", tmpFloat) > -1) gui->outlierCoefficient->Ref()->Set(tmpFloat);
+    if (Parse::get().arg(argc, argv, "-segMinNew", tmpFloat) > -1) gui->minRelSizeNew->Ref()->Set(tmpFloat);
+    if (Parse::get().arg(argc, argv, "-segMaxNew", tmpFloat) > -1) gui->maxRelSizeNew->Ref()->Set(tmpFloat);
+    if (Parse::get().arg(argc, argv, "-crfRGB", tmpFloat) > -1) gui->pairwiseRGBSTD->Ref()->Set(tmpFloat);
+    if (Parse::get().arg(argc, argv, "-crfDepth", tmpFloat) > -1) gui->pairwiseDepthSTD->Ref()->Set(tmpFloat);
+    if (Parse::get().arg(argc, argv, "-crfPos", tmpFloat) > -1) gui->pairwisePosSTD->Ref()->Set(tmpFloat);
+    if (Parse::get().arg(argc, argv, "-crfAppearance", tmpFloat) > -1) gui->pairwiseAppearanceWeight->Ref()->Set(tmpFloat);
+    if (Parse::get().arg(argc, argv, "-crfSmooth", tmpFloat) > -1) gui->pairwiseSmoothnessWeight->Ref()->Set(tmpFloat);
+    if (Parse::get().arg(argc, argv, "-offset", tmpFloat) > -1) gui->modelSpawnOffset->Ref()->Set(tmpFloat);
+    if (Parse::get().arg(argc, argv, "-thNew", tmpFloat) > -1) gui->thresholdNew->Ref()->Set(tmpFloat);
+    if (Parse::get().arg(argc, argv, "-k", tmpFloat) > -1) gui->unaryErrorK->Ref()->Set(tmpFloat);
 
     gui->flipColors->Ref().Set(logReader->flipColors);
     gui->rgbOnly->Ref().Set(false);
